@@ -9,10 +9,15 @@ fi
 
 eval "$(cat $1)"
 rm -rf build/*
-wget -O build/package.zip "$repo/archive/$checkout.zip"
+wget -O build/package "$source"
 cd build
-unzip package.zip
-rm package.zip
+if [[ -n $(file package | grep "Zip archive data") ]]; then
+    unzip package
+fi
+if [[ -n $(file package | grep "compressed data") ]]; then
+    tar xf package
+fi
+rm package
 cd *
 for step in "${steps[@]}"; do
     eval $step;
