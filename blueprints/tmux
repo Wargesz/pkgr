@@ -1,0 +1,4 @@
+name="tmux"
+source="https://github.com/tmux/tmux/releases/download/3.6/tmux-3.6.tar.gz"
+
+steps=("sh configure --prefix=$PREFIX" "make -j$NPROC install")
