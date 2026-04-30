@@ -1,5 +1,4 @@
 name="git"
-repo="https://github.com/git/git/"
-checkout="67ad42147a7acc2af6074753ebd03d904476118f"
+source="https://github.com/git/git/archive/67ad42147a7acc2af6074753ebd03d904476118f.zip"
 
 steps=("make -j$NPROC install prefix=$PREFIX NO_TCLKTK=1")
