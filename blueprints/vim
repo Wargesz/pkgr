@@ -1,0 +1,10 @@
+name='vim'
+repo='https://github.com/vim/vim'
+checkout='664701eb7576edb7c7c7d9f2d600815ec1f43459'
+
+steps=("./configure
+        --prefix=$PREFIX
+        --enable-python3interp=yes
+        --disable-gui
+        --without-x"
+        "make -j$NPROC install")

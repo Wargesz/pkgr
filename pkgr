@@ -1,0 +1,19 @@
+#!/bin/bash
+PREFIX=/opt/pkgr
+NPROC=$(nproc)
+
+if [[ -z $1 ]]; then
+    echo "no blueprint specified"
+    exit
+fi
+
+eval "$(cat $1)"
+rm -rf build/*
+wget -O build/package.zip "$repo/archive/$checkout.zip"
+cd build
+unzip package.zip
+rm package.zip
+cd *
+for step in "${steps[@]}"; do
+    eval $step;
+done
