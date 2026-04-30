@@ -1,0 +1,5 @@
+name="openssl"
+source="https://github.com/openssl/openssl/releases/download/openssl-4.0.0/openssl-4.0.0.tar.gz"
+
+steps=("sh Configure no-docs --prefix=$PREFIX --openssldir=$PREFIX \
+        '-Wl,-rpath,$(LIBRPATH)'" "make -j$NPROC install")
