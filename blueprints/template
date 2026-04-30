@@ -1,4 +1,6 @@
 name=""
 source=""
 
+needs=()
+
 steps=("")
