@@ -2,7 +2,7 @@ name='vim'
 source='https://github.com/vim/vim/archive/664701eb7576edb7c7c7d9f2d600815ec1f43459.zip'
 
 steps=("./configure
-        --prefix=$PREFIX
+        --prefix=\$PREFIX
         --enable-python3interp=yes
         --disable-gui
         --without-x"

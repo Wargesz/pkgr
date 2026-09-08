@@ -3,5 +3,5 @@ source="https://github.com/curl/curl/releases/download/curl-8_20_0/curl-8.20.0.t
 
 needs=()
 
-    steps=("sh configure --with-openssl --prefix=$PREFIX" "make
-            -j$NPROC install")
+    steps=("sh configure --with-openssl --without-libpsl --prefix=\$PREFIX"
+            "make -j$NPROC install")
