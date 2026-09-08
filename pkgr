@@ -1,24 +1,62 @@
 #!/bin/bash
-PREFIX=/opt/pkgr
 NPROC=$(nproc)
+BASE_PREFIX=~/.pkgr
+
+install () {
+    rm -rf build/*
+    wget -O build/package "$source"
+    cd build
+    if [[ -n $(file package | grep "Zip archive data") ]]; then
+        unzip package
+    fi
+    if [[ -n $(file package | grep "compressed data") ]]; then
+        tar xf package
+    fi
+    rm package
+    cd *
+    for step in "${steps[@]}"; do
+        step="${step/\$PREFIX/$PREFIX}"
+        eval $step
+    done
+    ln -s "$PREFIX/bin/$name" ~/.pkgr/bin/$name
+}
+
+remove () {
+    rm -rf $BASE_PREFIX/bin/$name $PREFIX
+}
+
+load_blueprint () {
+    if [[ -z $1 ]]; then
+        echo "no blueprint specified"
+        exit
+    fi
+    source $1
+    PREFIX=$BASE_PREFIX/$name
+}
 
 if [[ -z $1 ]]; then
-    echo "no blueprint specified"
+    echo "no operation specified"
     exit
 fi
 
-eval "$(cat $1)"
-rm -rf build/*
-wget -O build/package "$source"
-cd build
-if [[ -n $(file package | grep "Zip archive data") ]]; then
-    unzip package
-fi
-if [[ -n $(file package | grep "compressed data") ]]; then
-    tar xf package
-fi
-rm package
-cd *
-for step in "${steps[@]}"; do
-    eval $step;
-done
+case $1 in
+
+    install)
+        load_blueprint $2
+        install $2
+        ;;
+
+    remove)
+        load_blueprint $2
+        remove $2
+        ;;
+
+    list)
+        ls $BASE_PREFIX/bin
+        exit
+        ;;
+
+    *)
+        echo "unknown operation"
+        ;;
+esac
