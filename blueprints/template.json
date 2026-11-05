@@ -1,0 +1,9 @@
+{
+  "name": "",
+  "source": "",
+  "needs": [],
+  "steps": [
+    "./configure --prefix=$PREFIX",
+    "make -j$NPROC install"
+  ]
+}
