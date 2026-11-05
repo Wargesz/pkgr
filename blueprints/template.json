@@ -2,6 +2,7 @@
   "name": "",
   "source": "",
   "needs": [],
+  "binaries": [],
   "steps": [
     "./configure --prefix=$PREFIX",
     "make -j$NPROC install"
