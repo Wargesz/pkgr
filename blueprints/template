@@ -1,6 +1,6 @@
-name=""
-source=""
-
-needs=()
-
-steps=("")
+{
+  "name": "",
+  "source": "",
+  "needs": [],
+  "steps": []
+}
