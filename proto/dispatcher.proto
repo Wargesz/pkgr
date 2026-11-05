@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package pkgr;
+option go_package = "github.com/wargesz/pkgr/proto;pb";
+
+service Dispatcher {
+  rpc ConnectWorker (stream BuildResult) returns (stream BuildTask);
+  rpc RequestArtifact (ArtifactRequest) returns (stream BuildResult);
+}
+
+
+message BuildTask {
+  string name = 1;
+  string source = 2;
+  repeated string needs = 3;
+  repeated string steps = 4;
+  repeated string binaries = 5;
+}
+
+message BuildResult {
+  oneof content {
+    string build_log = 1;
+    Artifact artifact = 2;
+    ArtifactChunk artifact_chunk = 3;
+  }
+}
+
+message Artifact {
+  string filename = 1;
+  bytes data = 2;
+}
+
+message ArtifactChunk {
+  string filename = 1;
+  uint64 offset = 2;
+  bytes data = 3;
+}
+
+message ArtifactRequest {
+  string name = 1;
+}
