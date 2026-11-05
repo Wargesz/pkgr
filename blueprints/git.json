@@ -1,0 +1,23 @@
+{
+  "name": "git",
+  "source": "https://github.com/git/git/archive/67ad42147a7acc2af6074753ebd03d904476118f.zip",
+  "needs": [
+    "openssl-devel",
+    "zlib-devel",
+    "libcurl-devel",
+    "expat-devel",
+    "gettext-devel"
+  ],
+  "binaries": [
+    "git",
+    "git-cvsserver",
+    "git-receive-pack",
+    "git-shell",
+    "git-upload-archive",
+    "git-upload-pack",
+    "scalar"
+  ],
+  "steps": [
+    "make -j$NPROC prefix=$PREFIX install NO_TCLTK=1 NO_RUST=1"
+  ]
+}
