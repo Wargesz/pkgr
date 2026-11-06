@@ -19,6 +19,8 @@ type logWriter struct {
 	stream pb.Dispatcher_ConnectWorkerClient
 }
 
+const chunkSize = 64 * 1024
+
 var stream grpc.BidiStreamingClient[pb.BuildResult, pb.BuildTask]
 
 func main() {
@@ -38,15 +40,43 @@ func main() {
 		fmt.Println("Finished build of:", task.Name)
 		fmt.Println("Creating artifact...")
 		createArtifact(task)
-		stream.Send(&pb.BuildResult{
-			Content: &pb.BuildResult_Artifact{
-				Artifact: &pb.Artifact{
-					Filename: task.Name + ".zip",
-					Data:     getArtifactData(task),
-				},
-			},
-		})
+		fmt.Println("Exporting artifact...")
+		sendArtifact(stream, task)
+		fmt.Println("Done.")
 	}
+}
+
+func sendArtifact(stream grpc.BidiStreamingClient[pb.BuildResult, pb.BuildTask], task *pb.BuildTask) {
+	f, err := os.Open(os.Getenv("PREFIX") + task.Name + ".zip")
+	must(err)
+	defer f.Close()
+	buf := make([]byte, chunkSize)
+	for {
+		n, readErr := f.Read(buf)
+		if n > 0 {
+			data := append([]byte(nil), buf[:n]...)
+			err = stream.Send(&pb.BuildResult{
+				Content: &pb.BuildResult_ArtifactChunk{
+					ArtifactChunk: &pb.ArtifactChunk{
+						Filename: task.Name + ".zip",
+						Data:     data,
+						Empty:    false,
+					},
+				},
+			})
+		}
+		if readErr == io.EOF {
+			break
+		}
+		if readErr != nil {
+			log.Panic("failed to read archive data")
+		}
+	}
+	stream.Send(&pb.BuildResult{
+		Content: &pb.BuildResult_Complete{
+			Complete: true,
+		},
+	})
 }
 
 func getArtifactData(task *pb.BuildTask) []byte {
