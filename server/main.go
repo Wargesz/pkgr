@@ -52,7 +52,8 @@ func workerLoop(stream pb.Dispatcher_ConnectWorkerServer) error {
 }
 
 func workerListen(stream pb.Dispatcher_ConnectWorkerServer) error {
-	b := strings.Builder{}
+	artifactChunkChan := make(chan *pb.ArtifactChunk, 1)
+	go saveArtifact(artifactChunkChan)
 	for {
 		res, err := stream.Recv()
 		if err == io.EOF {
@@ -64,23 +65,36 @@ func workerListen(stream pb.Dispatcher_ConnectWorkerServer) error {
 			return err
 		}
 		switch content := res.Content.(type) {
-		case *pb.BuildResult_Artifact:
-			saveArtifact(content.Artifact)
+		case *pb.BuildResult_ArtifactChunk:
+			artifactChunkChan <- res.GetArtifactChunk()
+		case *pb.BuildResult_Complete:
+			artifactChunkChan <- &pb.ArtifactChunk{Empty: true}
 		case *pb.BuildResult_BuildLog:
-			b.WriteString(content.BuildLog)
-			if strings.Contains(content.BuildLog, "\n") {
-				print("[WORKER] ", b.String())
-			}
-			b.Reset()
+			print(content.BuildLog)
 		default:
 			fmt.Println("no content")
 		}
 	}
 }
 
-func saveArtifact(artifact *pb.Artifact) {
-	err := os.WriteFile(artifact.Filename, artifact.Data, 777)
-	must(err, "failed to save artifact")
+func saveArtifact(artifactChunkChan chan *pb.ArtifactChunk) {
+	chunk := <-artifactChunkChan
+	os.Remove(chunk.Filename)
+	out, err := os.OpenFile("./"+chunk.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	must(err, "failed to open artifact file")
+	_, err = out.Write(chunk.GetData())
+	must(err, "failed to write data")
+	for {
+		chunk = <-artifactChunkChan
+		if chunk.GetEmpty() {
+			out.Close()
+			chunk = <-artifactChunkChan
+			out, err = os.OpenFile("./"+chunk.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			must(err, "failed to open artifact file")
+		}
+		_, err = out.Write(chunk.GetData())
+		must(err, "failed to write data")
+	}
 }
 
 func createBuildTask(b Blueprint, clientId string) pb.BuildTask {
