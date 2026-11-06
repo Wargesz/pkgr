@@ -102,8 +102,8 @@ type BuildResult struct {
 	// Types that are valid to be assigned to Content:
 	//
 	//	*BuildResult_BuildLog
-	//	*BuildResult_Artifact
 	//	*BuildResult_ArtifactChunk
+	//	*BuildResult_Complete
 	Content       isBuildResult_Content `protobuf_oneof:"content"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -155,15 +155,6 @@ func (x *BuildResult) GetBuildLog() string {
 	return ""
 }
 
-func (x *BuildResult) GetArtifact() *Artifact {
-	if x != nil {
-		if x, ok := x.Content.(*BuildResult_Artifact); ok {
-			return x.Artifact
-		}
-	}
-	return nil
-}
-
 func (x *BuildResult) GetArtifactChunk() *ArtifactChunk {
 	if x != nil {
 		if x, ok := x.Content.(*BuildResult_ArtifactChunk); ok {
@@ -171,6 +162,15 @@ func (x *BuildResult) GetArtifactChunk() *ArtifactChunk {
 		}
 	}
 	return nil
+}
+
+func (x *BuildResult) GetComplete() bool {
+	if x != nil {
+		if x, ok := x.Content.(*BuildResult_Complete); ok {
+			return x.Complete
+		}
+	}
+	return false
 }
 
 type isBuildResult_Content interface {
@@ -181,76 +181,24 @@ type BuildResult_BuildLog struct {
 	BuildLog string `protobuf:"bytes,1,opt,name=build_log,json=buildLog,proto3,oneof"`
 }
 
-type BuildResult_Artifact struct {
-	Artifact *Artifact `protobuf:"bytes,2,opt,name=artifact,proto3,oneof"`
+type BuildResult_ArtifactChunk struct {
+	ArtifactChunk *ArtifactChunk `protobuf:"bytes,2,opt,name=artifact_chunk,json=artifactChunk,proto3,oneof"`
 }
 
-type BuildResult_ArtifactChunk struct {
-	ArtifactChunk *ArtifactChunk `protobuf:"bytes,3,opt,name=artifact_chunk,json=artifactChunk,proto3,oneof"`
+type BuildResult_Complete struct {
+	Complete bool `protobuf:"varint,3,opt,name=complete,proto3,oneof"`
 }
 
 func (*BuildResult_BuildLog) isBuildResult_Content() {}
 
-func (*BuildResult_Artifact) isBuildResult_Content() {}
-
 func (*BuildResult_ArtifactChunk) isBuildResult_Content() {}
 
-type Artifact struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Artifact) Reset() {
-	*x = Artifact{}
-	mi := &file_proto_dispatcher_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Artifact) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Artifact) ProtoMessage() {}
-
-func (x *Artifact) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_dispatcher_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Artifact.ProtoReflect.Descriptor instead.
-func (*Artifact) Descriptor() ([]byte, []int) {
-	return file_proto_dispatcher_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *Artifact) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
-func (x *Artifact) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
-}
+func (*BuildResult_Complete) isBuildResult_Content() {}
 
 type ArtifactChunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Empty         bool                   `protobuf:"varint,2,opt,name=empty,proto3" json:"empty,omitempty"`
 	Data          []byte                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -258,7 +206,7 @@ type ArtifactChunk struct {
 
 func (x *ArtifactChunk) Reset() {
 	*x = ArtifactChunk{}
-	mi := &file_proto_dispatcher_proto_msgTypes[3]
+	mi := &file_proto_dispatcher_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +218,7 @@ func (x *ArtifactChunk) String() string {
 func (*ArtifactChunk) ProtoMessage() {}
 
 func (x *ArtifactChunk) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_dispatcher_proto_msgTypes[3]
+	mi := &file_proto_dispatcher_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +231,7 @@ func (x *ArtifactChunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArtifactChunk.ProtoReflect.Descriptor instead.
 func (*ArtifactChunk) Descriptor() ([]byte, []int) {
-	return file_proto_dispatcher_proto_rawDescGZIP(), []int{3}
+	return file_proto_dispatcher_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ArtifactChunk) GetFilename() string {
@@ -293,11 +241,11 @@ func (x *ArtifactChunk) GetFilename() string {
 	return ""
 }
 
-func (x *ArtifactChunk) GetOffset() uint64 {
+func (x *ArtifactChunk) GetEmpty() bool {
 	if x != nil {
-		return x.Offset
+		return x.Empty
 	}
-	return 0
+	return false
 }
 
 func (x *ArtifactChunk) GetData() []byte {
@@ -316,7 +264,7 @@ type ArtifactRequest struct {
 
 func (x *ArtifactRequest) Reset() {
 	*x = ArtifactRequest{}
-	mi := &file_proto_dispatcher_proto_msgTypes[4]
+	mi := &file_proto_dispatcher_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +276,7 @@ func (x *ArtifactRequest) String() string {
 func (*ArtifactRequest) ProtoMessage() {}
 
 func (x *ArtifactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_dispatcher_proto_msgTypes[4]
+	mi := &file_proto_dispatcher_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +289,7 @@ func (x *ArtifactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArtifactRequest.ProtoReflect.Descriptor instead.
 func (*ArtifactRequest) Descriptor() ([]byte, []int) {
-	return file_proto_dispatcher_proto_rawDescGZIP(), []int{4}
+	return file_proto_dispatcher_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ArtifactRequest) GetName() string {
@@ -361,18 +309,15 @@ const file_proto_dispatcher_proto_rawDesc = "" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x14\n" +
 	"\x05needs\x18\x03 \x03(\tR\x05needs\x12\x14\n" +
 	"\x05steps\x18\x04 \x03(\tR\x05steps\x12\x1a\n" +
-	"\bbinaries\x18\x05 \x03(\tR\bbinaries\"\xa3\x01\n" +
+	"\bbinaries\x18\x05 \x03(\tR\bbinaries\"\x93\x01\n" +
 	"\vBuildResult\x12\x1d\n" +
-	"\tbuild_log\x18\x01 \x01(\tH\x00R\bbuildLog\x12,\n" +
-	"\bartifact\x18\x02 \x01(\v2\x0e.pkgr.ArtifactH\x00R\bartifact\x12<\n" +
-	"\x0eartifact_chunk\x18\x03 \x01(\v2\x13.pkgr.ArtifactChunkH\x00R\rartifactChunkB\t\n" +
-	"\acontent\":\n" +
-	"\bArtifact\x12\x1a\n" +
-	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data\"W\n" +
+	"\tbuild_log\x18\x01 \x01(\tH\x00R\bbuildLog\x12<\n" +
+	"\x0eartifact_chunk\x18\x02 \x01(\v2\x13.pkgr.ArtifactChunkH\x00R\rartifactChunk\x12\x1c\n" +
+	"\bcomplete\x18\x03 \x01(\bH\x00R\bcompleteB\t\n" +
+	"\acontent\"U\n" +
 	"\rArtifactChunk\x12\x1a\n" +
-	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\x12\x12\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x14\n" +
+	"\x05empty\x18\x02 \x01(\bR\x05empty\x12\x12\n" +
 	"\x04data\x18\x03 \x01(\fR\x04data\"%\n" +
 	"\x0fArtifactRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name2\x84\x01\n" +
@@ -393,26 +338,24 @@ func file_proto_dispatcher_proto_rawDescGZIP() []byte {
 	return file_proto_dispatcher_proto_rawDescData
 }
 
-var file_proto_dispatcher_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_proto_dispatcher_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_proto_dispatcher_proto_goTypes = []any{
 	(*BuildTask)(nil),       // 0: pkgr.BuildTask
 	(*BuildResult)(nil),     // 1: pkgr.BuildResult
-	(*Artifact)(nil),        // 2: pkgr.Artifact
-	(*ArtifactChunk)(nil),   // 3: pkgr.ArtifactChunk
-	(*ArtifactRequest)(nil), // 4: pkgr.ArtifactRequest
+	(*ArtifactChunk)(nil),   // 2: pkgr.ArtifactChunk
+	(*ArtifactRequest)(nil), // 3: pkgr.ArtifactRequest
 }
 var file_proto_dispatcher_proto_depIdxs = []int32{
-	2, // 0: pkgr.BuildResult.artifact:type_name -> pkgr.Artifact
-	3, // 1: pkgr.BuildResult.artifact_chunk:type_name -> pkgr.ArtifactChunk
-	1, // 2: pkgr.Dispatcher.ConnectWorker:input_type -> pkgr.BuildResult
-	4, // 3: pkgr.Dispatcher.RequestArtifact:input_type -> pkgr.ArtifactRequest
-	0, // 4: pkgr.Dispatcher.ConnectWorker:output_type -> pkgr.BuildTask
-	1, // 5: pkgr.Dispatcher.RequestArtifact:output_type -> pkgr.BuildResult
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: pkgr.BuildResult.artifact_chunk:type_name -> pkgr.ArtifactChunk
+	1, // 1: pkgr.Dispatcher.ConnectWorker:input_type -> pkgr.BuildResult
+	3, // 2: pkgr.Dispatcher.RequestArtifact:input_type -> pkgr.ArtifactRequest
+	0, // 3: pkgr.Dispatcher.ConnectWorker:output_type -> pkgr.BuildTask
+	1, // 4: pkgr.Dispatcher.RequestArtifact:output_type -> pkgr.BuildResult
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_dispatcher_proto_init() }
@@ -422,8 +365,8 @@ func file_proto_dispatcher_proto_init() {
 	}
 	file_proto_dispatcher_proto_msgTypes[1].OneofWrappers = []any{
 		(*BuildResult_BuildLog)(nil),
-		(*BuildResult_Artifact)(nil),
 		(*BuildResult_ArtifactChunk)(nil),
+		(*BuildResult_Complete)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -431,7 +374,7 @@ func file_proto_dispatcher_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_dispatcher_proto_rawDesc), len(file_proto_dispatcher_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
