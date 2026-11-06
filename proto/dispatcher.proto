@@ -20,19 +20,14 @@ message BuildTask {
 message BuildResult {
   oneof content {
     string build_log = 1;
-    Artifact artifact = 2;
-    ArtifactChunk artifact_chunk = 3;
+    ArtifactChunk artifact_chunk = 2;
+    bool complete = 3;
   }
-}
-
-message Artifact {
-  string filename = 1;
-  bytes data = 2;
 }
 
 message ArtifactChunk {
   string filename = 1;
-  uint64 offset = 2;
+  bool empty = 2;
   bytes data = 3;
 }
 
